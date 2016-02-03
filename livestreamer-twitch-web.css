@@ -1,1 +1,21 @@
 /* CSS declarations go here */
+#streams {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#streams .stream {
+  float: left;
+  position: relative;
+  margin: 10px;
+}
+
+#streams .stream .stream-description  {
+  float: left;
+  position: absolute;
+  bottom: 5px;
+  padding: 5px 10px;
+  background: #111;
+  color: #eee;
+}

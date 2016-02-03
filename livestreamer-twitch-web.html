@@ -10,9 +10,16 @@
 </body>
 
 <template name="streams">
-  <ul>
+  <ul id="streams">
     {{#each stream}}
-      <li class="stream">{{channel.name}}: {{data.viewers}}</li>
+    <li class="stream">
+      <img src="{{data.preview.medium}}" />
+      <div class="stream-description">
+        <span class="stream-name">{{channel.name}}</span>
+        <span class="stream-game">{{data.game}}</span>
+        <span class="stream-viewers">{{data.viewers}}</span>
+      </div>
+    </li>
     {{/each}}
   </ul>
 </template>
