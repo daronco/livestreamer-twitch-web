@@ -5,14 +5,16 @@
 <body>
   {{> navbar}}
 
-  <h1>Welcome to Meteor!</h1>
-
-  {{> hello}}
+  <h1>Live streams</h1>
+  {{> streams}}
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
+<template name="streams">
+  <ul>
+    {{#each stream}}
+      <li class="stream">{{channel.name}}: {{data.viewers}}</li>
+    {{/each}}
+  </ul>
 </template>
 
 <template name="navbar">
