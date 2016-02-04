@@ -1,39 +1,3 @@
-ChannelList = new Mongo.Collection('channels');
-StreamList = new Mongo.Collection('streams', {
-  transform: function(doc) {
-    doc.channel = ChannelList.findOne({ _id: doc.channelId });
-    return doc;
-  }
-});
-
-if (Meteor.isClient) {
-
-  Meteor.subscribe('channels');
-  Meteor.subscribe('streams');
-
-  Tracker.autorun(function(c) {
-    if (c.firstRun) {
-      // console.log("-- first time");
-      if (Meteor.userId()) {
-        Meteor.call('updateFollowedStreams');
-      }
-    } else {
-      // console.log("-- not first time");
-    }
-  });
-
-  Template.streams.helpers({
-    'stream': function() {
-      var userId = Meteor.userId();
-      // console.log("-- searching streams", {createdBy: userId});
-      return StreamList.find(
-        { createdBy: userId },
-        { sort: { "data.viewers": -1, name: 1 } }
-      );
-    }
-  });
-}
-
 if (Meteor.isServer) {
   Meteor.startup(function () {
     // code to run on server at startup
