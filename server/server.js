@@ -46,10 +46,6 @@ if (Meteor.isServer) {
               data: stream.channel
             }
           });
-          // console.log("== saving channel", {
-          //   name: stream.channel.name,
-          //   data: stream.channel
-          // });
           var channel = ChannelList.findOne({ name: stream.channel.name });
 
           // save the stream, indexed by channel id
@@ -65,11 +61,6 @@ if (Meteor.isServer) {
               data: stream
             }
           });
-          // console.log("== saving stream", {
-          //   channelId: channel._id,
-          //   createdBy: userId,
-          //   data: stream
-          // });
         });
       }
 
@@ -89,6 +80,9 @@ if (Meteor.isServer) {
     if (streamId) {
       stream = StreamList.findOne(streamId);
       OnAir.insert(stream);
+
+      // play it
+      Livestreamer.play(stream);
     }
   };
 
