@@ -5,14 +5,30 @@
 <body>
   {{> navbar}}
 
+  {{> onAir}}
+
   <h1>Live streams</h1>
   {{> streams}}
 </body>
 
+<template name="navbar">
+  {{#if currentUser}}
+    {{currentUser.profile.name}}
+  {{else}}
+    {{> twitchLoginButton}}
+  {{/if}}
+</template>
+
+<template name="onAir">
+  {{#if stream}}
+    On air: {{stream.channel.name}}
+  {{/if}}
+</template>
+
 <template name="streams">
   <ul id="streams">
     {{#each stream}}
-    <li class="stream">
+    <li class="stream {{selectedClass}}">
       <img src="{{data.preview.medium}}" />
       <div class="stream-description">
         <span class="stream-name">{{channel.name}}</span>
@@ -22,12 +38,4 @@
     </li>
     {{/each}}
   </ul>
-</template>
-
-<template name="navbar">
-  {{#if currentUser}}
-    {{currentUser.profile.name}}
-  {{else}}
-    {{> twitchLoginButton}}
-  {{/if}}
 </template>
