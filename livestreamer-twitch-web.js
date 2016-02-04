@@ -39,11 +39,11 @@ if (Meteor.isServer) {
     // code to run on server at startup
   });
 
-  Meteor.publish('channels', function(){
+  Meteor.publish('channels', function() {
     return ChannelList.find();
   });
 
-  Meteor.publish('streams', function(){
+  Meteor.publish('streams', function() {
     var currentUserId = this.userId;
     return StreamList.find({ createdBy: currentUserId });
   });
@@ -55,6 +55,15 @@ if (Meteor.isServer) {
         var user = Meteor.users.findOne(userId);
         var accessToken = userTwitchInfo(user).accessToken;
         var response = TwitchAccounts.apiCall("GET", "/streams/followed", {}, accessToken);
+
+        // set all streams as not live anymore so we can remove them later
+        StreamList.update({
+          createdBy: userId
+        }, {
+          $set: { live: false }
+        }, {
+          multi: true
+        });
 
         if (response.data && response.data.streams) {
           streams = response.data.streams;
@@ -85,6 +94,7 @@ if (Meteor.isServer) {
               $set: {
                 channelId: channel._id,
                 createdBy: userId,
+                live: true,
                 data: stream
               }
             });
@@ -95,6 +105,9 @@ if (Meteor.isServer) {
             // });
           });
         }
+
+        // remove all streams not live anymore
+        StreamList.remove({ createdBy: userId, live: false });
 
         return true;
       }
