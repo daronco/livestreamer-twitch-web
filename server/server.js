@@ -16,6 +16,8 @@ if (Meteor.isServer) {
     return OnAir.find();
   });
 
+  // Fetches the streams the current user follows in Twitch and update
+  // the database
   var updateFollowedStreams = function() {
     if (this.userId) {
       var userId = this.userId;
@@ -72,7 +74,12 @@ if (Meteor.isServer) {
     return false;
   };
 
+  // Sets the stream on air
   var updateOnAir = function(streamId) {
+    if (streamId == streamOnAir()) {
+      return;
+    }
+
     // remove the current stream set as OnAir
     OnAir.remove({});
 
@@ -86,9 +93,19 @@ if (Meteor.isServer) {
     }
   };
 
+  // Returns the streamId of the stream currently on air
+  var streamOnAir = function() {
+    if (OnAir.findOne()) {
+      return OnAir.findOne()._id;
+    } else {
+      return null;
+    }
+  };
+
   Meteor.methods({
     updateFollowedStreams: updateFollowedStreams,
-    updateOnAir: updateOnAir
+    updateOnAir: updateOnAir,
+    streamOnAir: streamOnAir
   });
 }
 

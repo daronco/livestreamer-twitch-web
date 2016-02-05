@@ -7,47 +7,106 @@ var LS_CMD = "livestreamer";
 if (Meteor.isServer) {
 
   Livestreamer.play = function(streamId) {
-    stream = StreamList.findOne(streamId);
+    var stream = StreamList.findOne(streamId);
 
-    args = [
-      "--player-no-close",
-      "--ringbuffer-size", "100M",
-      "--hls-live-edge", "12",
-      "--player", "vlc --qt-minimal-view --one-instance --fullscreen",
+    var args = [
+      // "--player-no-close",
+      // "--ringbuffer-size", "100M",
+      // "--hls-live-edge", "12",
+      "--player", "vlc --qt-minimal-view --fullscreen",
       "--no-version-check",
+      // "-l", "debug",
       "twitch.tv/" + stream.channel().name,
-      "medium"
+      "low"
     ];
-    this.child = spawn(LS_CMD, args, {
-      detached: true
+
+    // kill the previous child, if any
+    if (this.child) {
+      Livestreamer.kill(this.child.pid);
+    }
+
+    // spawn a new child and store reference
+    var child = spawn(LS_CMD, args);
+    this.child = child;
+    console.log("Spawned child [" + child.pid + "]");
+
+    var onData = Meteor.bindEnvironment(function(data) {
+      console.log(`std: ${data}`);
+      // TODO: detect failures starting the player?
+      // match("Failed to start player")
     });
 
-    this.child.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
-    });
+    var ended = function(data) {
+      // stop the livestreamer, unless it was an old process that ended
+      var curr = Livestreamer.currentChild();
+      if (curr && curr.pid == child.pid) {
+        Livestreamer.stop();
+      }
+    };
 
-    this.child.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`);
-    });
+    child.stdout.on('data', onData);
+    child.stderr.on('data', onData);
 
-    this.child.on('close', Meteor.bindEnvironment((code) => {
-      console.log(`child process exited with code ${code}`);
-      this.child = null;
-      Livestreamer.stop();
+    child.on('close', Meteor.bindEnvironment(function(code) {
+      console.log(`Child process exited with code ${code}`);
+      ended();
     }));
 
-    this.child.on('error', Meteor.bindEnvironment((err) => {
-      console.log(`failed to start child process ${err}`);
-      this.child = null;
-      Livestreamer.stop();
+    child.on('error', Meteor.bindEnvironment(function(err) {
+      console.log(`Failed to start child process ${err}`);
+      ended();
     }));
   };
 
   Livestreamer.stop = function() {
+    console.log("Stopping livestreamer");
     if (this.child) {
-      this.child.kill('SIGTERM');
-      // will end up triggering the "close" event in the child
+      Livestreamer.kill(this.child.pid);
+      this.child = null;
     }
     Meteor.call('updateOnAir', null);
+  };
+
+  Livestreamer.currentChild = function() {
+    return this.child;
+  };
+
+  Livestreamer.kill = function(pid) {
+    console.log("Killing the process [" + pid + "]");
+
+    try {
+      // TODO: maybe using "SIGKILL" and killing vlc is faster
+      process.kill(pid);
+    } catch(err) {
+      console.log("Error trying to kill process", err);
+    }
+
+    function waitKill(p, callback) {
+      if (Livestreamer.isRunning(p)) {
+        setTimeout(function() {
+          console.log("Waiting process to end...");
+          waitKill(p, callback);
+        }, 100);
+      } else {
+        callback();
+      }
+    };
+
+    var waitKillSync = Meteor.wrapAsync(waitKill);
+    waitKillSync(pid);
+
+    console.log("Process killed [" + pid + "]");
+  };
+
+  Livestreamer.isRunning = function(pid) {
+    if (!pid) {
+      return false;
+    }
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch(err) {
+      return false;
+    }
   };
 }
