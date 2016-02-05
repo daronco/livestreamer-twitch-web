@@ -72,7 +72,7 @@ if (Meteor.isServer) {
     return false;
   };
 
-  var updateOnAir = function (streamId) {
+  var updateOnAir = function(streamId) {
     // remove the current stream set as OnAir
     OnAir.remove({});
 

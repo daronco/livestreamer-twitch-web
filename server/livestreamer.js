@@ -1,4 +1,4 @@
-child_process = Npm.require('child_process');
+var spawn = Npm.require('child_process').spawn;
 
 Livestreamer = {};
 
@@ -18,7 +18,9 @@ if (Meteor.isServer) {
       "twitch.tv/" + stream.channel().name,
       "medium"
     ];
-    this.child = child_process.spawn(LS_CMD, args);
+    this.child = spawn(LS_CMD, args, {
+      detached: true
+    });
 
     this.child.stdout.on('data', (data) => {
       console.log(`stdout: ${data}`);
@@ -28,9 +30,24 @@ if (Meteor.isServer) {
       console.log(`stderr: ${data}`);
     });
 
-    this.child.on('close', (code) => {
+    this.child.on('close', Meteor.bindEnvironment((code) => {
       console.log(`child process exited with code ${code}`);
-    });
+      this.child = null;
+      Livestreamer.stop();
+    }));
+
+    this.child.on('error', Meteor.bindEnvironment((err) => {
+      console.log(`failed to start child process ${err}`);
+      this.child = null;
+      Livestreamer.stop();
+    }));
   };
 
+  Livestreamer.stop = function() {
+    if (this.child) {
+      this.child.kill('SIGTERM');
+      // will end up triggering the "close" event in the child
+    }
+    Meteor.call('updateOnAir', null);
+  };
 }

@@ -32,7 +32,7 @@ if (Meteor.isClient) {
 
     'selectedClass': function() {
       var streamId = this._id;
-      var selectedStream = Session.get('selectedStream');
+      var selectedStream = OnAir.findOne()._id;
       if (streamId == selectedStream) {
         return "selected";
       }
