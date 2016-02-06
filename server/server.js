@@ -1,23 +1,8 @@
 if (Meteor.isServer) {
-  Meteor.startup(function () {
-    // code to run on server at startup
-  });
-
-  Meteor.publish('channels', function() {
-    return ChannelList.find();
-  });
-
-  Meteor.publish('streams', function() {
-    var currentUserId = this.userId;
-    return StreamList.find({ createdBy: currentUserId });
-  });
-
-  Meteor.publish('onAir', function() {
-    return OnAir.find();
-  });
 
   // Fetches the streams the current user follows in Twitch and update
   // the database
+  // TODO: use Meteor.defer and/or this.unblock
   var updateFollowedStreams = function() {
     if (this.userId) {
       var userId = this.userId;
@@ -75,7 +60,8 @@ if (Meteor.isServer) {
   };
 
   // Sets the stream on air
-  var updateOnAir = function(streamId) {
+  var setOnAir = function(streamId) {
+    // prevent useless work if the stream is already playing
     if (streamId == streamOnAir()) {
       return;
     }
@@ -89,22 +75,47 @@ if (Meteor.isServer) {
       OnAir.insert(stream);
 
       // play it
-      Livestreamer.play(stream);
+      Livestreamer.play(stream._id, onStreamEnded);
     }
   };
 
-  // Returns the streamId of the stream currently on air
-  var streamOnAir = function() {
-    if (OnAir.findOne()) {
-      return OnAir.findOne()._id;
-    } else {
-      return null;
+  var onStreamEnded = function(streamId) {
+    // we only remove it from air if the stream that ended was the one that
+    // is on air, otherwise it was an old stream that ended
+    if (streamOnAir() == streamId) {
+      OnAir.remove({});
     }
   };
+
+  /**
+   * Returns the streamId of the stream currently on air
+   */
+  var streamOnAir = function() {
+    var streamId = OnAir.findOne() ? OnAir.findOne()._id : null;
+    return streamId;
+  };
+
+  Meteor.startup(function () {
+    // remove whatever was on air before, if anything
+    setOnAir(null);
+  });
+
+  Meteor.publish('channels', function() {
+    return ChannelList.find();
+  });
+
+  Meteor.publish('streams', function() {
+    var currentUserId = this.userId;
+    return StreamList.find({ createdBy: currentUserId });
+  });
+
+  Meteor.publish('onAir', function() {
+    return OnAir.find();
+  });
 
   Meteor.methods({
     updateFollowedStreams: updateFollowedStreams,
-    updateOnAir: updateOnAir,
+    setOnAir: setOnAir,
     streamOnAir: streamOnAir
   });
 }

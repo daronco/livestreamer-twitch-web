@@ -6,7 +6,7 @@ var LS_CMD = "livestreamer";
 
 if (Meteor.isServer) {
 
-  Livestreamer.play = function(streamId) {
+  Livestreamer.play = function(streamId, onStreamEnded) {
     var stream = StreamList.findOne(streamId);
 
     var args = [
@@ -27,8 +27,9 @@ if (Meteor.isServer) {
 
     // spawn a new child and store reference
     var child = spawn(LS_CMD, args);
+    child.stream = stream;
     this.child = child;
-    console.log("Spawned child [" + child.pid + "]");
+    console.log("Spawned child [" + child.pid + "] for", child.stream._id);
 
     var onData = Meteor.bindEnvironment(function(data) {
       console.log(`std: ${data}`);
@@ -37,10 +38,9 @@ if (Meteor.isServer) {
     });
 
     var ended = function(data) {
-      // stop the livestreamer, unless it was an old process that ended
-      var curr = Livestreamer.currentChild();
-      if (curr && curr.pid == child.pid) {
-        Livestreamer.stop();
+      Livestreamer.stop();
+      if (_.isFunction(onStreamEnded)) {
+        onStreamEnded(child.stream._id);
       }
     };
 
@@ -64,7 +64,6 @@ if (Meteor.isServer) {
       Livestreamer.kill(this.child.pid);
       this.child = null;
     }
-    Meteor.call('updateOnAir', null);
   };
 
   Livestreamer.currentChild = function() {
