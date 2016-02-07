@@ -38,11 +38,11 @@ if (Meteor.isServer) {
           // save the stream, indexed by channel id
           delete stream.channel;
           StreamList.upsert({
-            channelId: channel._id,
+            channel: { name: channel.name },
             createdBy: userId
           }, {
             $set: {
-              channelId: channel._id,
+              channel: channel,
               createdBy: userId,
               live: true,
               data: stream
@@ -72,18 +72,28 @@ if (Meteor.isServer) {
     // get the stream selected and set on air
     if (streamId) {
       stream = StreamList.findOne(streamId);
-      OnAir.insert(stream);
+      OnAir.insert({
+        stream: stream,
+        playerOpen: false
+      });
 
       // play it
-      Livestreamer.play(stream._id, onStreamEnded);
+      Livestreamer.play(stream._id, onStatusChange);
     }
   };
 
-  var onStreamEnded = function(streamId) {
-    // we only remove it from air if the stream that ended was the one that
-    // is on air, otherwise it was an old stream that ended
-    if (streamOnAir() == streamId) {
-      OnAir.remove({});
+  var onStatusChange = function(liveInfo) {
+    var streamId = liveInfo.stream._id;
+
+    if (liveInfo.ended) {
+      // we only remove it from air if the stream that ended was the one that
+      // is on air, otherwise it was an old stream that ended
+      if (streamOnAir() == streamId) {
+        OnAir.remove({});
+      }
+    } else {
+      var attrs = { playerOpen: liveInfo.playerOpen };
+      OnAir.update({}, { "$set": attrs });
     }
   };
 
@@ -91,7 +101,7 @@ if (Meteor.isServer) {
    * Returns the streamId of the stream currently on air
    */
   var streamOnAir = function() {
-    var streamId = OnAir.findOne() ? OnAir.findOne()._id : null;
+    var streamId = OnAir.findOne() ? OnAir.findOne().stream._id : null;
     return streamId;
   };
 

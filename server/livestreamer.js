@@ -6,7 +6,9 @@ var LS_CMD = "livestreamer";
 
 if (Meteor.isServer) {
 
-  Livestreamer.play = function(streamId, onStreamEnded) {
+  Livestreamer.liveInfo = {};
+
+  Livestreamer.play = function(streamId, onStatusChange) {
     var stream = StreamList.findOne(streamId);
 
     var args = [
@@ -16,32 +18,45 @@ if (Meteor.isServer) {
       "--player", "vlc --qt-minimal-view --fullscreen",
       "--no-version-check",
       // "-l", "debug",
-      "twitch.tv/" + stream.channel().name,
+      "twitch.tv/" + stream.channel.name,
       "low"
     ];
 
     // kill the previous child, if any
-    if (this.child) {
-      Livestreamer.kill(this.child.pid);
+    if (this.liveInfo.child) {
+      Livestreamer.kill(this.liveInfo.child.pid);
+      this.liveInfo.child = null;
     }
 
     // spawn a new child and store reference
     var child = spawn(LS_CMD, args);
-    child.stream = stream;
-    this.child = child;
-    console.log("Spawned child [" + child.pid + "] for", child.stream._id);
+    var liveInfo = {
+      child: child,
+      stream: stream,
+      onStatusChange: onStatusChange,
+      started: true,     // started to play
+      ended: false,      // didn't end yet
+      playerOpen: false  // player not open yet
+    };
+    this.liveInfo = liveInfo;
+    console.log("Spawned child [" + child.pid + "] for", liveInfo.stream._id);
 
     var onData = Meteor.bindEnvironment(function(data) {
       console.log(`std: ${data}`);
       // TODO: detect failures starting the player?
       // match("Failed to start player")
+      data = data ? data.toString() : "";
+      if (data.match(/Starting player/)) {
+        Livestreamer.setInfo({ playerOpen: true });
+      } else if  (data.match(/Player closed/)) {
+        Livestreamer.setInfo({ playerOpen: false });
+      } else if  (data.match(/Stream ended/)) {
+        Livestreamer.setInfo({ ended: true });
+      }
     });
 
     var ended = function(data) {
       Livestreamer.stop();
-      if (_.isFunction(onStreamEnded)) {
-        onStreamEnded(child.stream._id);
-      }
     };
 
     child.stdout.on('data', onData);
@@ -60,14 +75,11 @@ if (Meteor.isServer) {
 
   Livestreamer.stop = function() {
     console.log("Stopping livestreamer");
-    if (this.child) {
-      Livestreamer.kill(this.child.pid);
-      this.child = null;
+    if (this.liveInfo.child) {
+      Livestreamer.kill(this.liveInfo.child.pid);
+      this.liveInfo.child = null;
     }
-  };
-
-  Livestreamer.currentChild = function() {
-    return this.child;
+    Livestreamer.setInfo({ ended: true });
   };
 
   Livestreamer.kill = function(pid) {
@@ -106,6 +118,14 @@ if (Meteor.isServer) {
       return true;
     } catch(err) {
       return false;
+    }
+  };
+
+  Livestreamer.setInfo = function(attrs) {
+    _.extend(this.liveInfo, attrs);
+    // TODO: only trigger it if anything changed
+    if (_.isFunction(this.liveInfo.onStatusChange)) {
+      this.liveInfo.onStatusChange(this.liveInfo);
     }
   };
 }

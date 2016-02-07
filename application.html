@@ -20,8 +20,10 @@
 </template>
 
 <template name="onAir">
-  {{#if stream}}
-    On air: {{stream.channel.name}}
+  {{#if hasStreamOnAir}}
+    <div class="on-air {{loadingClass}}">
+      On air: {{streamOnAir.channel.name}}
+    </div>
   {{/if}}
 </template>
 

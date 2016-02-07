@@ -9,7 +9,7 @@ if (Meteor.isClient) {
   };
 
   var streamOnAir = function() {
-    var streamId = OnAir.findOne() ? OnAir.findOne()._id : null;
+    var streamId = OnAir.findOne() ? OnAir.findOne().stream._id : null;
     return streamId;
   };
 
@@ -35,7 +35,6 @@ if (Meteor.isClient) {
         { sort: { "data.viewers": -1, name: 1 } }
       );
     },
-
     'selectedClass': function() {
       var streamId = this._id;
       var selectedStream = streamOnAir();
@@ -53,8 +52,19 @@ if (Meteor.isClient) {
   });
 
   Template.onAir.helpers({
-    'stream': function() {
-      return OnAir.findOne();
+    'hasStreamOnAir': function() {
+      return !!(OnAir.findOne());
+    },
+    'streamOnAir': function() {
+      return OnAir.findOne().stream;
+    },
+    'loadingClass': function() {
+      var liveInfo = OnAir.findOne();
+      if (liveInfo && liveInfo.playerOpen) {
+        return null;
+      } else {
+        return "loading";
+      }
     }
   });
 
