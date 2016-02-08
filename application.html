@@ -31,6 +31,15 @@
 
 <template name="onAir">
   <div id="on-air" class="title-bar {{loadingClass}}">
+
+    {{#if loadingClass}}
+      <div class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+      </div>
+    {{/if}}
+
     <div class="live-ico">live</div>
     <div class="stream-description">
       <span class="stream-name">{{streamOnAir.channel.name}}</span> playing
@@ -43,7 +52,7 @@
 
 <template name="streams">
   <ul id="streams">
-    {{#each stream}}
+    {{#each followedStream}}
     <li class="stream {{selectedClass}}">
       <img src="{{data.preview.medium}}" />
       <div class="stream-info-overlay">

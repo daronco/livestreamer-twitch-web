@@ -8,13 +8,16 @@ if (Meteor.isClient) {
     Meteor.call('setOnAir', streamId);
   };
 
-  var streamOnAir = function() {
-    var streamId = OnAir.findOne() ? OnAir.findOne().stream._id : null;
-    return streamId;
+  var streamOnAir = function(idOnly=false) {
+    var stream = OnAir.findOne() ? OnAir.findOne().stream : null;
+    if (stream && idOnly) {
+      stream = stream._id;
+    }
+    return stream;
   };
 
   var navbarHeightChanged = function() {
-    var height = $("#navbar").outerHeight();
+    var height = $("#navbar").outerHeight() + 10;
     $("body").css("padding-top", height + "px");
   };
 
@@ -32,7 +35,9 @@ if (Meteor.isClient) {
   });
 
   Template.navbar.onRendered(function () {
-    navbarHeightChanged();
+    Meteor.setTimeout(function(){
+      navbarHeightChanged();
+    }, 100);
   });
 
   Template.navbar.helpers({
@@ -50,11 +55,15 @@ if (Meteor.isClient) {
   });
 
   Template.onAir.onRendered(function() {
-    navbarHeightChanged();
+    Meteor.setTimeout(function(){
+      navbarHeightChanged();
+    }, 100);
   });
 
   Template.onAir.onDestroyed(function() {
-    navbarHeightChanged();
+    Meteor.setTimeout(function(){
+      navbarHeightChanged();
+    }, 100);
   });
 
   Template.onAir.helpers({
@@ -72,17 +81,16 @@ if (Meteor.isClient) {
   });
 
   Template.streams.helpers({
-    'stream': function() {
+    'followedStream': function() {
       var userId = Meteor.userId();
       return StreamList.find(
-        { createdBy: userId },
+        { category: "followed", followedBy: userId },
         { sort: { "data.viewers": -1, name: 1 } }
       );
     },
     'selectedClass': function() {
       var streamId = this._id;
-      var selectedStream = streamOnAir();
-      if (streamId == selectedStream) {
+      if (streamId == streamOnAir(true)) {
         return "selected";
       }
       return null;
@@ -94,5 +102,4 @@ if (Meteor.isClient) {
       userSelectedStream(this._id);
     }
   });
-
 }

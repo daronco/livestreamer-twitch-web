@@ -12,7 +12,8 @@ if (Meteor.isServer) {
 
       // set all streams as not live anymore so we can remove them later
       StreamList.update({
-        createdBy: userId
+        category: "followed",
+        followedBy: userId
       }, {
         $set: { live: false }
       }, {
@@ -35,16 +36,17 @@ if (Meteor.isServer) {
           });
           var channel = ChannelList.findOne({ name: stream.channel.name });
 
-          // save the stream, indexed by channel id
+          // save the stream, indexed by channel name
           delete stream.channel;
           StreamList.upsert({
-            channel: { name: channel.name },
-            createdBy: userId
+            name: channel.name
           }, {
             $set: {
+              name: channel.name,
               channel: channel,
-              createdBy: userId,
               live: true,
+              category: "followed",
+              followedBy: userId,
               data: stream
             }
           });
@@ -52,7 +54,7 @@ if (Meteor.isServer) {
       }
 
       // remove all streams not live anymore
-      StreamList.remove({ createdBy: userId, live: false });
+      StreamList.remove({ category: "followed", followedBy: userId, live: false });
 
       return true;
     }
@@ -62,7 +64,7 @@ if (Meteor.isServer) {
   // Sets the stream on air
   var setOnAir = function(streamId) {
     // prevent useless work if the stream is already playing
-    if (streamId == streamOnAir()) {
+    if (streamId == streamOnAir(true)) {
       return;
     }
 
@@ -91,7 +93,7 @@ if (Meteor.isServer) {
     if (liveInfo.ended) {
       // we only remove it from air if the stream that ended was the one that
       // is on air, otherwise it was an old stream that ended
-      if (streamOnAir() == streamId) {
+      if (streamOnAir(true) == streamId) {
         OnAir.remove({});
       }
     } else {
@@ -103,13 +105,17 @@ if (Meteor.isServer) {
   /**
    * Returns the streamId of the stream currently on air
    */
-  var streamOnAir = function() {
-    var streamId = OnAir.findOne() ? OnAir.findOne().stream._id : null;
-    return streamId;
+  var streamOnAir = function(idOnly=false) {
+    var stream = OnAir.findOne() ? OnAir.findOne().stream : null;
+    if (stream && idOnly) {
+      stream = stream._id;
+    }
+    return stream;
   };
 
   Meteor.startup(function () {
     // clear what was on air before, if anything
+    // TODO: if livestreamer is running, should use it as OnAir
     OnAir.remove({});
     setOnAir(null);
   });
@@ -119,8 +125,7 @@ if (Meteor.isServer) {
   });
 
   Meteor.publish('streams', function() {
-    var currentUserId = this.userId;
-    return StreamList.find({ createdBy: currentUserId });
+    return StreamList.find();
   });
 
   Meteor.publish('onAir', function() {
