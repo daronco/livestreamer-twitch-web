@@ -98,6 +98,7 @@ if (Meteor.isServer) {
           console.log("Waiting process to end...");
           waitKill(p, callback);
         }, 100);
+        // TODO: force kill if waited too long (e.g. vlc was paused)
       } else {
         callback();
       }

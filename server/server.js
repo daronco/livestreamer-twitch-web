@@ -71,14 +71,17 @@ if (Meteor.isServer) {
 
     // get the stream selected and set on air
     if (streamId) {
-      stream = StreamList.findOne(streamId);
-      OnAir.insert({
-        stream: stream,
-        playerOpen: false
-      });
+      var stream = StreamList.findOne(streamId);
 
-      // play it
-      Livestreamer.play(stream._id, onStatusChange);
+      if (stream) {
+        OnAir.insert({
+          stream: stream,
+          playerOpen: false
+        });
+
+        // play it
+        Livestreamer.play(stream._id, onStatusChange);
+      }
     }
   };
 
@@ -106,7 +109,8 @@ if (Meteor.isServer) {
   };
 
   Meteor.startup(function () {
-    // remove whatever was on air before, if anything
+    // clear what was on air before, if anything
+    OnAir.remove({});
     setOnAir(null);
   });
 

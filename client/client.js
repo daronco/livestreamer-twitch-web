@@ -13,6 +13,11 @@ if (Meteor.isClient) {
     return streamId;
   };
 
+  var navbarHeightChanged = function() {
+    var height = $("#navbar").outerHeight();
+    $("body").css("padding-top", height + "px");
+  };
+
   // When the logged user changes, fetch updated information
   // from Twitch
   Tracker.autorun(function(c) {
@@ -26,10 +31,49 @@ if (Meteor.isClient) {
     }
   });
 
+  Template.navbar.onRendered(function () {
+    navbarHeightChanged();
+  });
+
+  Template.navbar.helpers({
+    'hasStreamOnAir': function() {
+      return !!(OnAir.findOne());
+    }
+  });
+
+  Template.navbar.events({
+    'click #logout-btn': function() {
+      Meteor.logout(function(err) {
+        // TODO: clear followed streams or something
+      });
+    }
+  });
+
+  Template.onAir.onRendered(function() {
+    navbarHeightChanged();
+  });
+
+  Template.onAir.onDestroyed(function() {
+    navbarHeightChanged();
+  });
+
+  Template.onAir.helpers({
+    'streamOnAir': function() {
+      return OnAir.findOne().stream;
+    },
+    'loadingClass': function() {
+      var liveInfo = OnAir.findOne();
+      if (liveInfo && liveInfo.playerOpen) {
+        return null;
+      } else {
+        return "loading";
+      }
+    }
+  });
+
   Template.streams.helpers({
     'stream': function() {
       var userId = Meteor.userId();
-      // console.log("-- searching streams", {createdBy: userId});
       return StreamList.find(
         { createdBy: userId },
         { sort: { "data.viewers": -1, name: 1 } }
@@ -48,23 +92,6 @@ if (Meteor.isClient) {
   Template.streams.events({
     'click .stream': function() {
       userSelectedStream(this._id);
-    }
-  });
-
-  Template.onAir.helpers({
-    'hasStreamOnAir': function() {
-      return !!(OnAir.findOne());
-    },
-    'streamOnAir': function() {
-      return OnAir.findOne().stream;
-    },
-    'loadingClass': function() {
-      var liveInfo = OnAir.findOne();
-      if (liveInfo && liveInfo.playerOpen) {
-        return null;
-      } else {
-        return "loading";
-      }
     }
   });
 

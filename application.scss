@@ -1,0 +1,122 @@
+@import '{zurb:foundation-sites}/scss/foundation';
+
+@include foundation-everything;
+
+$bg-color: #222;
+$twitch-purple: #6441a5;
+
+body {
+  background: $bg-color;
+  color: #eee;
+}
+
+#navbar {
+  background: #0a0a0a;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  line-height: 36px;
+  opacity: 0.9;
+
+  .username {
+    font-weight: bold;
+    float: right;
+    margin: 0 15px;
+  }
+}
+
+#on-air {
+  //background: #6441a5 url('/img/live-ico.png') no-repeat left top;
+  background: #6441a5;
+  clear: both;
+  color: #fff;
+  border-top: 1px solid #222;
+  line-height: 26px; // smaller than .title-bar
+  position: relative;
+
+  .stream-name, .stream-game, .stream-viewers {
+    font-weight: bold;
+  }
+
+  .live-ico {
+    background: red;
+    position: absolute;
+    top: -8px;
+    padding: 3px;
+    font-size: 12px;
+    line-height: 12px;
+    font-weight: bold;
+    border-radius: 3px;
+  }
+}
+
+// clone of #twitchLoginButton
+#logout-btn {
+  background-color: #6441a5;
+  border: 0;
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  height: 36px;
+  line-height: 36px;
+  outline: 0;
+  padding: 0 1rem;
+  position: relative;
+  text-align: center;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  float: right;
+}
+
+/* CSS declarations go here */
+#streams {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  .stream {
+    float: left;
+    position: relative;
+    padding: 5px;
+    margin: 10px;
+    cursor: pointer;
+
+    img {
+      border: 2px solid #eee;
+    }
+
+    &.selected {
+      background: $twitch-purple;
+    }
+
+    .stream-info-overlay  {
+      float: left;
+      position: absolute;
+      top: 7px;
+      left: 7px;
+      right: 7px;
+      padding: 5px 10px;
+      background: rgba(0,0,0,0.7);
+      color: #eee;
+      font-size: 14px;
+
+      .stream-name {
+        font-weight: bold;
+      }
+
+      .stream-game {
+        display: block;
+      }
+
+      .stream-viewers {
+        float: right;
+      }
+
+      .stream-status {
+        font-size: 12px;
+      }
+    }
+  }
+}

@@ -4,27 +4,41 @@
 
 <body>
   {{> navbar}}
-
-  {{> onAir}}
-
-  <h1>Live streams</h1>
   {{> streams}}
 </body>
 
 <template name="navbar">
-  {{#if currentUser}}
-    {{currentUser.profile.name}}
-  {{else}}
-    {{> twitchLoginButton}}
-  {{/if}}
+  <div id="navbar">
+    <div class="title-bar">
+      <div class="title-bar-left">
+        Followed | Featured | All
+      </div>
+      <div class="title-bar-right">
+        {{#if currentUser}}
+          <button id="logout-btn" type="button">Logout</button>
+          <div class="username">{{currentUser.profile.name}}</div>
+        {{else}}
+          {{> twitchLoginButton}}
+        {{/if}}
+      </div>
+    </div>
+
+    {{#if hasStreamOnAir}}
+      {{> onAir}}
+    {{/if}}
+  </div>
 </template>
 
 <template name="onAir">
-  {{#if hasStreamOnAir}}
-    <div class="on-air {{loadingClass}}">
-      On air: {{streamOnAir.channel.name}}
+  <div id="on-air" class="title-bar {{loadingClass}}">
+    <div class="live-ico">live</div>
+    <div class="stream-description">
+      <span class="stream-name">{{streamOnAir.channel.name}}</span> playing
+      <span class="stream-game">{{streamOnAir.data.game}}</span> for
+      <span class="stream-viewers">{{streamOnAir.data.viewers}}</span> viewers
     </div>
-  {{/if}}
+    <div class="stream-status">{{streamOnAir.channel.data.status}}</div>
+  </div>
 </template>
 
 <template name="streams">
@@ -32,10 +46,13 @@
     {{#each stream}}
     <li class="stream {{selectedClass}}">
       <img src="{{data.preview.medium}}" />
-      <div class="stream-description">
-        <span class="stream-name">{{channel.name}}</span>
-        <span class="stream-game">{{data.game}}</span>
-        <span class="stream-viewers">{{data.viewers}}</span>
+      <div class="stream-info-overlay">
+        <div class="stream-description">
+          <span class="stream-name">{{channel.name}}</span>
+          <span class="stream-viewers">{{data.viewers}}</span>
+          <span class="stream-game">{{data.game}}</span>
+        </div>
+        <div class="stream-status">{{channel.data.status}}</div>
       </div>
     </li>
     {{/each}}
