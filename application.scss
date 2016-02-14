@@ -1,3 +1,4 @@
+@import 'settings';
 @import '{zurb:foundation-sites}/scss/foundation';
 
 @include foundation-everything;
@@ -75,18 +76,28 @@ body {
   list-style: none;
   margin: 0;
   padding: 0;
+  width: 100%;
+  padding: 5px 15px;
+  @include grid-row();
 
   .stream {
-    float: left;
     position: relative;
-    padding: 5px;
-    margin: 10px;
+    padding: 5px !important; // to ignore the padding from grid-column
     cursor: pointer;
+
+    @include breakpoint(small down) {
+      @include grid-column(12);
+    }
+    @include breakpoint(medium up) {
+      @include grid-column(6);
+    }
+    @include breakpoint(xlarge up) {
+      @include grid-column(4);
+    }
 
     img {
       border: 2px solid #eee;
-      width: 324px;
-      height: 184px;
+      width: 100%;
     }
 
     &.selected {
