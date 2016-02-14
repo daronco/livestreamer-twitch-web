@@ -19,13 +19,9 @@ if (Meteor.isClient) {
   // When the logged user changes, fetch updated information
   // from Twitch
   Tracker.autorun(function(c) {
-    if (c.firstRun) {
-      // console.log("-- first time");
-      if (Meteor.userId()) {
-        Meteor.call('updateFollowedStreams');
-      }
-    } else {
-      // console.log("-- not first time");
+    if (Meteor.userId()) {
+      console.log("Updating followed streams");
+      Meteor.call('updateFollowedStreams');
     }
   });
 
