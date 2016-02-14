@@ -1,4 +1,4 @@
-@import 'settings';
+@import '../settings';
 @import '{zurb:foundation-sites}/scss/foundation';
 
 @include foundation-everything;
@@ -39,17 +39,6 @@ body {
 
   .stream-name, .stream-game, .stream-viewers {
     font-weight: bold;
-  }
-
-  .live-ico {
-    background: red;
-    position: absolute;
-    top: -8px;
-    padding: 3px;
-    font-size: 12px;
-    line-height: 12px;
-    font-weight: bold;
-    border-radius: 3px;
   }
 }
 
