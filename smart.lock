@@ -1,0 +1,18 @@
+{
+  "meteor": {},
+  "dependencies": {
+    "basePackages": {
+      "daronco:accounts-twitch": {
+        "git": "https://github.com/daronco/meteor-accounts-twitch.git",
+        "branch": "master"
+      }
+    },
+    "packages": {
+      "daronco:accounts-twitch": {
+        "git": "https://github.com/daronco/meteor-accounts-twitch.git",
+        "branch": "master",
+        "commit": "f9d2139692901fc7d576ae75f62578c23dfff0d4"
+      }
+    }
+  }
+}
