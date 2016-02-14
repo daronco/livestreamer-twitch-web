@@ -1,6 +1,6 @@
 <head>
   <title>livestreamer-twitch-web</title>
-  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
@@ -33,7 +33,6 @@
             <a href="#" id="logout-btn" class="waves-effect waves-light btn">Logout</a>
           {{else}}
             <a href="#" id="login-btn" class="waves-effect waves-light btn">Login</a>
-            <!-- {{> twitchLoginButton}} -->
           {{/if}}
         </div>
       </div>
@@ -61,11 +60,11 @@
 
   <div id="navbar-progress-on-air" class="navbar-fixed">
     <nav>
-      <div class="nav-wrapper progress progress-on-air blue {{loadingClass}}">
+      <div class="nav-wrapper progress progress-on-air teal {{loadingClass}}">
         {{#if loadingClass}}
-          <div class="indeterminate indigo"></div>
+          <div class="indeterminate green"></div>
         {{else}}
-          <div class="indeterminate blue"></div>
+          <div class="indeterminate teal"></div>
         {{/if}}
       </div>
     </nav>
@@ -78,7 +77,7 @@
     <li class="stream {{selectedClass}} col s12 m6 l4">
 
       <div class="card">
-        <div class="card-image stream-select">
+        <div class="card-image waves-effect waves-teal stream-select">
           <img src="{{data.preview.large}}" />
           <span class="card-title">{{channel.name}}</span>
           <span class="card-title stream-viewers">{{data.viewers}}</span>

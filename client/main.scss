@@ -104,7 +104,7 @@ body {
 
     &.active {
       .card-content {
-        background: darken($twitch-purple, 5);
+        background: darken($secondary-color, 5);
       }
     }
   }
