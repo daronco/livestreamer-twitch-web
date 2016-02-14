@@ -1,164 +1,111 @@
+@import "{poetic:materialize-scss}/sass/components/_color.scss";
 @import '../settings';
-@import '{zurb:foundation-sites}/scss/foundation';
+@import "{poetic:materialize-scss}/sass/materialize.scss";
 
-@include foundation-everything;
+// Overrides of materializecss
+.container {
+  width: $max-width;
+}
+nav {
+  background: $nav-bg;
 
-$bg-color: #222;
-$twitch-purple: #6441a5;
+  /* To fix flickering:
+       transform: translateZ(0);
+     However, it bugs the sliding sidebar,
+     see https://github.com/Dogfalo/materialize/issues/2392
+   */
+}
+
 
 body {
   background: $bg-color;
   color: #eee;
 }
 
-#navbar {
-  background: #0a0a0a;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 99;
-  line-height: 36px;
+.navbar-fixed {
   opacity: 0.9;
+  z-index: 999;
 
+  nav {
+    padding: 0 10px;
+  }
+}
+
+#navbar-main {
   .username {
-    font-weight: bold;
-    float: right;
-    margin: 0 15px;
+    background: #222;
+    color: #fff;
+    margin-right: 10px;
   }
 }
 
-#on-air {
-  //background: #6441a5 url('/img/live-ico.png') no-repeat left top;
-  background: #6441a5;
-  clear: both;
+#navbar-on-air nav {
+  background: darken($twitch-purple, 5);
   color: #fff;
-  border-top: 1px solid #222;
-  line-height: 26px; // smaller than .title-bar
-  position: relative;
 
-  .stream-name, .stream-game, .stream-viewers {
-    font-weight: bold;
+  .nav-wrapper {
+    @media #{$small-and-down} {
+      padding: 3px;
+      line-height: 24px; // otherwise would accept only a single line of text
+    }
+    @media #{$medium-and-up} {
+      padding: 8px;
+      line-height: 24px; // otherwise would accept only a single line of text
+    }
+
+    .stream-name, .stream-game, .stream-viewers {
+      font-weight: bold;
+    }
   }
 }
 
-// clone of #twitchLoginButton
-#logout-btn {
-  background-color: #6441a5;
-  border: 0;
-  border-radius: 3px;
-  color: #fff;
-  cursor: pointer;
-  height: 36px;
-  line-height: 36px;
-  outline: 0;
-  padding: 0 1rem;
-  position: relative;
-  text-align: center;
-  -webkit-transition: all 0.2s;
-  transition: all 0.2s;
-  float: right;
-}
-
-/* CSS declarations go here */
-#streams {
-  list-style: none;
-  margin: 0;
+#navbar-progress-on-air {
+  height: 5px;
   padding: 0;
+
+  nav {
+    height: 5px;
+    padding: 0;
+  }
+
+  .progress-on-air {
+    border-radius: 0;
+    margin: 0;
+  }
+}
+
+
+.stream-list {
+  list-style: none;
   width: 100%;
-  padding: 5px 15px;
-  @include grid-row();
+
+  // normalizecss leaves a weird larger space at the right on small screens,
+  // so make it even
+  padding: 0 0 10px 20px;
 
   .stream {
-    position: relative;
-    padding: 5px !important; // to ignore the padding from grid-column
-    cursor: pointer;
+    .card {
+      background: $bg-color;
 
-    @include breakpoint(small down) {
-      @include grid-column(12);
-    }
-    @include breakpoint(medium up) {
-      @include grid-column(6);
-    }
-    @include breakpoint(xlarge up) {
-      @include grid-column(4);
-    }
-
-    img {
-      border: 2px solid #eee;
-      width: 100%;
-    }
-
-    &.selected {
-      background: $twitch-purple;
-    }
-
-    .stream-info-overlay  {
-      float: left;
-      position: absolute;
-      top: 7px;
-      left: 7px;
-      right: 7px;
-      padding: 5px 10px;
-      background: rgba(0,0,0,0.7);
-      color: #eee;
-      font-size: 14px;
-
-      .stream-name {
+      .card-title {
         font-weight: bold;
       }
 
-      .stream-game {
-        display: block;
+      .card-title.stream-viewers {
+        left: auto;
+        right: 0;
       }
 
-      .stream-viewers {
-        float: right;
-      }
-
-      .stream-status {
-        font-size: 12px;
+      .card-content {
+        padding: 10px;
+        background: darken($bg-color, 10);
       }
     }
-  }
-}
 
-/* Loading spinner
-   From: http://tobiasahlin.com/spinkit */
-.spinner {
-  margin: 15px 15px 0 0;
-  float: right;
-  width: 70px;
-  text-align: center;
-}
-.spinner > div {
-  width: 18px;
-  height: 18px;
-  background-color: #fff;
-
-  border-radius: 100%;
-  display: inline-block;
-  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
-}
-.spinner .bounce1 {
-  -webkit-animation-delay: -0.32s;
-  animation-delay: -0.32s;
-}
-.spinner .bounce2 {
-  -webkit-animation-delay: -0.16s;
-  animation-delay: -0.16s;
-}
-@-webkit-keyframes sk-bouncedelay {
-  0%, 80%, 100% { -webkit-transform: scale(0) }
-  40% { -webkit-transform: scale(1.0) }
-}
-@keyframes sk-bouncedelay {
-  0%, 80%, 100% { 
-    -webkit-transform: scale(0);
-    transform: scale(0);
-  } 40% { 
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
+    &.active {
+      .card-content {
+        background: darken($twitch-purple, 5);
+      }
+    }
   }
 }

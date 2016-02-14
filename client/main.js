@@ -16,11 +16,6 @@ if (Meteor.isClient) {
     return stream;
   };
 
-  var navbarHeightChanged = function() {
-    var height = $("#navbar").outerHeight() + 10;
-    $("body").css("padding-top", height + "px");
-  };
-
   // When the logged user changes, fetch updated information
   // from Twitch
   Tracker.autorun(function(c) {
@@ -34,10 +29,8 @@ if (Meteor.isClient) {
     }
   });
 
-  Template.navbar.onRendered(function () {
-    Meteor.setTimeout(function(){
-      navbarHeightChanged();
-    }, 100);
+  Template.navbar.onRendered(function() {
+    $(".button-collapse").sideNav();
   });
 
   Template.navbar.helpers({
@@ -51,19 +44,14 @@ if (Meteor.isClient) {
       Meteor.logout(function(err) {
         // TODO: clear followed streams or something
       });
+    },
+    'click #login-btn': function() {
+      // var scope = ['user_read', 'channel_read', 'user_blocks_read', 'user_subscriptions'];
+      var scope = ['user_read'];
+      Meteor.loginWithTwitch({requestPermissions: scope}, function (err) {
+        if (err) console.log('login failed: ' + err);
+      });
     }
-  });
-
-  Template.onAir.onRendered(function() {
-    Meteor.setTimeout(function(){
-      navbarHeightChanged();
-    }, 100);
-  });
-
-  Template.onAir.onDestroyed(function() {
-    Meteor.setTimeout(function(){
-      navbarHeightChanged();
-    }, 100);
   });
 
   Template.onAir.helpers({
@@ -91,14 +79,14 @@ if (Meteor.isClient) {
     'selectedClass': function() {
       var streamId = this._id;
       if (streamId == streamOnAir(true)) {
-        return "selected";
+        return "active";
       }
       return null;
     }
   });
 
   Template.streams.events({
-    'click .stream': function() {
+    'click .stream-select': function() {
       userSelectedStream(this._id);
     }
   });

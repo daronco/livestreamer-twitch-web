@@ -1,7 +1,11 @@
-//  Foundation for Sites Settings
+// our variables
+$twitch-purple: #6441a5;
+$bg-color: #222;
+$max-width: 100%;
+$nav-bg: #0a0a0a;
 
-// find the complete file at
-// https://raw.githubusercontent.com/zurb/foundation-sites/develop/scss/settings/_settings.scss
-@import '{zurb:foundation-sites}/scss/util/util';
-
-$global-width: 100%;
+// materializecss's variables
+// Available variables:
+// https://github.com/poetic/meteor-materialize-scss/blob/meteor/sass/components/_variables.scss
+$primary-color: $twitch-purple;
+$button-color: $primary-color;

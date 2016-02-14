@@ -1,67 +1,94 @@
 <head>
   <title>livestreamer-twitch-web</title>
+  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
 <body>
   {{> navbar}}
-  {{> streams}}
+  <div class="container">
+    {{> streams}}
+  </div>
 </body>
 
 <template name="navbar">
-  <div id="navbar">
-    <div class="title-bar">
-      <div class="title-bar-left">
-        Followed streams <!-- | Featured | All -->
-      </div>
-      <div class="title-bar-right">
-        {{#if currentUser}}
-          <button id="logout-btn" type="button">Logout</button>
-          <div class="username">{{currentUser.profile.name}}</div>
-        {{else}}
-          {{> twitchLoginButton}}
-        {{/if}}
-      </div>
-    </div>
+  <div id="navbar-main" class="navbar-fixed">
+    <nav>
+      <div id="navbar" class="nav-wrapper">
+        <ul class="left hide-on-small-and-down">
+          <li><a href="#">Followed streams</a></li>
+          <!-- | Featured | All -->
+        </ul>
 
-    {{#if hasStreamOnAir}}
-      {{> onAir}}
-    {{/if}}
+        <ul id="slide-out" class="side-nav hide-on-med-and-up">
+          <li><a href="#">Followed streams</a></li>
+        </ul>
+        <a href="#" data-activates="slide-out" class="button-collapse hide-on-med-and-up">
+          <i class="mdi-navigation-menu"></i>
+        </a>
+
+        <div class="right">
+          {{#if currentUser}}
+            <div class="chip username">{{currentUser.profile.name}}</div>
+            <a href="#" id="logout-btn" class="waves-effect waves-light btn">Logout</a>
+          {{else}}
+            <a href="#" id="login-btn" class="waves-effect waves-light btn">Login</a>
+            <!-- {{> twitchLoginButton}} -->
+          {{/if}}
+        </div>
+      </div>
+    </nav>
   </div>
+
+  {{#if hasStreamOnAir}}
+    {{> onAir}}
+  {{/if}}
 </template>
 
 <template name="onAir">
-  <div id="on-air" class="title-bar {{loadingClass}}">
-
-    {{#if loadingClass}}
-      <div class="spinner">
-        <div class="bounce1"></div>
-        <div class="bounce2"></div>
-        <div class="bounce3"></div>
+  <div id="navbar-on-air" class="navbar-fixed">
+    <nav>
+      <div class="nav-wrapper">
+        <div class="stream-description truncate">
+          <span class="stream-name">{{streamOnAir.channel.name}}</span> playing
+          <span class="stream-game">{{streamOnAir.data.game}}</span> for
+          <span class="stream-viewers">{{streamOnAir.data.viewers}}</span> viewers
+        </div>
+        <div class="stream-status truncate">{{streamOnAir.channel.data.status}}</div>
       </div>
-    {{/if}}
+    </nav>
+  </div>
 
-    <div class="stream-description">
-      <span class="stream-name">{{streamOnAir.channel.name}}</span> playing
-      <span class="stream-game">{{streamOnAir.data.game}}</span> for
-      <span class="stream-viewers">{{streamOnAir.data.viewers}}</span> viewers
-    </div>
-    <div class="stream-status">{{streamOnAir.channel.data.status}}</div>
+  <div id="navbar-progress-on-air" class="navbar-fixed">
+    <nav>
+      <div class="nav-wrapper progress progress-on-air blue {{loadingClass}}">
+        {{#if loadingClass}}
+          <div class="indeterminate indigo"></div>
+        {{else}}
+          <div class="indeterminate blue"></div>
+        {{/if}}
+      </div>
+    </nav>
   </div>
 </template>
 
 <template name="streams">
-  <ul id="streams">
+  <ul class="stream-list row">
     {{#each followedStream}}
-    <li class="stream {{selectedClass}}">
-      <img src="{{data.preview.large}}" />
-      <div class="stream-info-overlay">
-        <div class="stream-description">
-          <span class="stream-name">{{channel.name}}</span>
-          <span class="stream-viewers">{{data.viewers}}</span>
-          <span class="stream-game">{{data.game}}</span>
+    <li class="stream {{selectedClass}} col s12 m6 l4">
+
+      <div class="card">
+        <div class="card-image stream-select">
+          <img src="{{data.preview.large}}" />
+          <span class="card-title">{{channel.name}}</span>
+          <span class="card-title stream-viewers">{{data.viewers}}</span>
         </div>
-        <div class="stream-status">{{channel.data.status}}</div>
+        <div class="card-content">
+          <span class="stream-game truncate">{{data.game}}</span>
+          <div class="stream-status truncate">{{channel.data.status}}</div>
+        </div>
       </div>
+
     </li>
     {{/each}}
   </ul>
