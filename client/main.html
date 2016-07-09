@@ -45,27 +45,25 @@
 </template>
 
 <template name="onAir">
-  <div id="navbar-on-air" class="navbar-fixed">
+  <div id="navbar-on-air">
     <nav>
       <div class="nav-wrapper">
-        <div class="stream-description truncate">
-          <span class="stream-name">{{streamOnAir.channel.name}}</span> playing
-          <span class="stream-game">{{streamOnAir.data.game}}</span> for
-          <span class="stream-viewers">{{streamOnAir.data.viewers}}</span> viewers
-        </div>
-        <div class="stream-status truncate">{{streamOnAir.channel.data.status}}</div>
-      </div>
-    </nav>
-  </div>
 
-  <div id="navbar-progress-on-air" class="navbar-fixed">
-    <nav>
-      <div class="nav-wrapper progress progress-on-air teal {{loadingClass}}">
+      <div class="progress progress-on-air teal {{loadingClass}}">
         {{#if loadingClass}}
-          <div class="indeterminate green"></div>
+          <div class="indeterminate red"></div>
         {{else}}
           <div class="indeterminate teal"></div>
         {{/if}}
+      </div>
+
+        <div class="stream-status truncate">
+          Now playing: <span class="stream-name">{{streamOnAir.channel.name}}</span>
+        </div>
+        <div class="stream-description truncate">
+          <span class="stream-game">{{streamOnAir.data.game}}</span> for
+          <span class="stream-viewers">{{streamOnAir.data.viewers}}</span> viewers
+        </div>
       </div>
     </nav>
   </div>
@@ -83,7 +81,7 @@
           <span class="card-title stream-viewers">{{data.viewers}}</span>
         </div>
         <div class="card-content">
-          <span class="stream-game truncate">{{data.game}}</span>
+          <div class="stream-game truncate">{{data.game}}</div>
           <div class="stream-status truncate">{{channel.data.status}}</div>
         </div>
       </div>

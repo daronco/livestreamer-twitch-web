@@ -2,6 +2,8 @@
 @import '../settings';
 @import "{poetic:materialize-scss}/sass/materialize.scss";
 
+$navbar-z-index: 999;
+
 // Overrides of materializecss
 .container {
   width: $max-width;
@@ -20,6 +22,7 @@ nav {
 body {
   background: $bg-color;
   color: #eee;
+  padding-bottom: 50px;
 }
 
 .navbar-fixed {
@@ -39,23 +42,43 @@ body {
   }
 }
 
-#navbar-on-air nav {
-  background: darken($twitch-purple, 5);
-  color: #fff;
+#navbar-on-air {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $navbar-z-index;
+  opacity: 0.9;
 
-  .nav-wrapper {
-    @media #{$small-and-down} {
-      padding: 3px;
-      line-height: 24px; // otherwise would accept only a single line of text
-    }
-    @media #{$medium-and-up} {
-      padding: 8px;
-      line-height: 24px; // otherwise would accept only a single line of text
-    }
+  nav {
+    background: #000; //darken($twitch-purple, 5);
+    color: #fff;
 
-    .stream-name, .stream-game, .stream-viewers {
-      font-weight: bold;
+    .nav-wrapper {
+      height: 64px;
+
+      @media #{$small-and-down} {
+        padding: 7px 5px 5px 7px;
+        line-height: 24px; // otherwise would accept only a single line of text
+      }
+      @media #{$medium-and-up} {
+        padding: 10px 8px 5px 10px;
+        line-height: 24px; // otherwise would accept only a single line of text
+      }
+
+      .stream-name, .stream-game, .stream-viewers {
+        font-weight: bold;
+      }
     }
+  }
+
+  .progress-on-air {
+    border-radius: 0;
+    margin: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
   }
 }
 
@@ -89,11 +112,18 @@ body {
 
       .card-title {
         font-weight: bold;
+        text-shadow: 2px 2px 0 #222;
+        padding: 5px 10px;
+        top: 0;
+        bottom: auto;
       }
 
       .card-title.stream-viewers {
         left: auto;
         right: 0;
+        font-size: 16px;
+        top: auto;
+        bottom: 0;
       }
 
       .card-content {
