@@ -2,7 +2,8 @@
  * Returns the streamId of the stream currently on air
  */
 streamOnAir = function(idOnly=false) {
-  var stream = OnAir.findOne() ? OnAir.findOne().stream : null;
+  var one = OnAir.findOne();
+  var stream = one ? one.stream : null;
   if (stream && idOnly) {
     stream = stream._id;
   }

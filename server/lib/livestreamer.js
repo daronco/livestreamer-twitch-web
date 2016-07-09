@@ -1,6 +1,5 @@
 var spawn = Npm.require('child_process').spawn;
-
-var LS_CMD = "livestreamer";
+var psTree = Meteor.npmRequire('ps-tree');
 
 Livestreamer = {};
 
@@ -8,7 +7,9 @@ Livestreamer.liveInfo = {};
 
 Livestreamer.play = function(streamId, onStatusChange) {
   var stream = StreamList.findOne(streamId);
+  console.log("Livestreamer: will play", stream._id);
 
+  var livestreamerBin = 'livestreamer';
   var args = [
     // "--player-no-close",
     "--ringbuffer-size", "100M",
@@ -16,6 +17,7 @@ Livestreamer.play = function(streamId, onStatusChange) {
     // "--player", "vlc --qt-minimal-view --fullscreen",
     "-np", "omxplayer -o hdmi",
     "--no-version-check",
+    "--verbose-player",
     // "-l", "debug",
     "twitch.tv/" + stream.channel.name,
     "high"
@@ -23,12 +25,48 @@ Livestreamer.play = function(streamId, onStatusChange) {
 
   // kill the previous child, if any
   if (this.liveInfo.child) {
-    Livestreamer.kill(this.liveInfo.child.pid);
+    Livestreamer.kill(this.liveInfo.child);
     this.liveInfo.child = null;
   }
 
+  var onData = Meteor.bindEnvironment(function(data) {
+    process.stdout.write(`Livestreamer: [output to std] ${data}`);
+    // TODO: detect failures starting the player?
+    // match("Failed to start player")
+    data = data ? data.toString() : "";
+    if (data.match(/Starting player/)) {
+      Livestreamer.setInfo({ playerOpen: true });
+      var children = Livestreamer.childrenPids(child);
+      console.log("Livestreamer: spawned children", children);
+
+    } else if  (data.match(/Player closed/)) {
+      Livestreamer.setInfo({ playerOpen: false });
+
+    } else if  (data.match(/Stream ended/)) {
+      Livestreamer.setInfo({ ended: true });
+    }
+  });
+
+  // TODO: if this is called while we are already stopping the processes, it shouldn't
+  // do anything, could just wait/abort
+  var ended = function(data) {
+    Livestreamer.stop();
+  };
+
   // spawn a new child and store reference
-  var child = spawn(LS_CMD, args);
+  console.log("Livestreamer: spawning livestreamer");
+  var child = spawn(livestreamerBin, args);
+  child.stdout.on('data', onData);
+  child.stderr.on('data', onData);
+  child.on('close', Meteor.bindEnvironment(function(code) {
+    console.log(`Livestreamer: child process exited with code ${code}`);
+    ended();
+  }));
+  child.on('error', Meteor.bindEnvironment(function(err) {
+    console.log(`Livestreamer: failed to start child process ${err}`);
+    ended();
+  }));
+
   var liveInfo = {
     child: child,
     stream: stream,
@@ -38,64 +76,35 @@ Livestreamer.play = function(streamId, onStatusChange) {
     playerOpen: false  // player not open yet
   };
   this.liveInfo = liveInfo;
-  console.log("Spawned child [" + child.pid + "] for", liveInfo.stream._id);
-
-  var onData = Meteor.bindEnvironment(function(data) {
-    console.log(`std: ${data}`);
-    // TODO: detect failures starting the player?
-    // match("Failed to start player")
-    data = data ? data.toString() : "";
-    if (data.match(/Starting player/)) {
-      Livestreamer.setInfo({ playerOpen: true });
-    } else if  (data.match(/Player closed/)) {
-      Livestreamer.setInfo({ playerOpen: false });
-    } else if  (data.match(/Stream ended/)) {
-      Livestreamer.setInfo({ ended: true });
-    }
-  });
-
-  var ended = function(data) {
-    Livestreamer.stop();
-  };
-
-  child.stdout.on('data', onData);
-  child.stderr.on('data', onData);
-
-  child.on('close', Meteor.bindEnvironment(function(code) {
-    console.log(`Child process exited with code ${code}`);
-    ended();
-  }));
-
-  child.on('error', Meteor.bindEnvironment(function(err) {
-    console.log(`Failed to start child process ${err}`);
-    ended();
-  }));
+  console.log("Livestreamer: spawned child [" + child.pid + "] for stream", liveInfo.stream._id);
 };
 
 Livestreamer.stop = function() {
-  console.log("Stopping livestreamer");
+  console.log("Livestreamer: stopping livestreamer");
   if (this.liveInfo.child) {
-    Livestreamer.kill(this.liveInfo.child.pid);
+    Livestreamer.kill(this.liveInfo.child);
     this.liveInfo.child = null;
   }
   Livestreamer.setInfo({ ended: true });
 };
 
-Livestreamer.kill = function(pid) {
-  console.log("Killing the process [" + pid + "]");
+Livestreamer.kill = function(child) {
+  var pid = child.pid;
+  var children = Livestreamer.childrenPids(child);
+  console.log("Livestreamer: killing the processes", [pid].concat(children));
 
   try {
-    // TODO: maybe using "SIGKILL" and killing vlc is faster
-    process.kill(pid);
+    // could use use "SIGKILL" to make it faster
+    _.each(children.concat(child.pid), function(c) { if (c) { process.kill(c, "SIGKILL"); } });
   } catch(err) {
-    console.log("Error trying to kill process", err);
+    console.log("Livestreamer: error trying to kill a process", err);
   }
 
-  function waitKill(p, callback) {
-    if (Livestreamer.isRunning(p)) {
+  function waitKill(child, callback) {
+    if (Livestreamer.isAnyRunning([pid].concat(children))) {
       setTimeout(function() {
-        console.log("Waiting process to end...");
-        waitKill(p, callback);
+        console.log("Livestreamer: waiting process to end...");
+        waitKill(child, callback);
       }, 100);
       // TODO: force kill if waited too long (e.g. vlc was paused)
     } else {
@@ -104,21 +113,31 @@ Livestreamer.kill = function(pid) {
   };
 
   var waitKillSync = Meteor.wrapAsync(waitKill);
-  waitKillSync(pid);
+  waitKillSync(child);
 
-  console.log("Process killed [" + pid + "]");
+  console.log("Livestreamer: process killed [" + [pid].concat(children) + "]");
 };
 
 Livestreamer.isRunning = function(pid) {
   if (!pid) {
+    console.log("Livestreamer: process", pid, "is not running");
     return false;
   }
   try {
     process.kill(pid, 0);
+    console.log("Livestreamer: process", pid, "is still running");
     return true;
   } catch(err) {
+    console.log("Livestreamer: process", pid, "is not running");
     return false;
   }
+};
+
+Livestreamer.isAnyRunning = function(pids) {
+  console.log("Livestreamer: checking if any is running", pids);
+  return _.any(pids, function(pid) {
+    return Livestreamer.isRunning(pid);
+  });
 };
 
 Livestreamer.setInfo = function(attrs) {
@@ -127,4 +146,10 @@ Livestreamer.setInfo = function(attrs) {
   if (_.isFunction(this.liveInfo.onStatusChange)) {
     this.liveInfo.onStatusChange(this.liveInfo);
   }
+};
+
+Livestreamer.childrenPids = function(child) {
+  var psTreeSync = Meteor.wrapAsync(psTree);
+  var children = psTreeSync(child.pid);
+  return _.map(children, function(c) { return parseInt(c['PID']); });
 };
