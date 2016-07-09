@@ -2,26 +2,24 @@ var spawn = Npm.require('child_process').spawn;
 var psTree = Meteor.npmRequire('ps-tree');
 
 Livestreamer = {};
-
 Livestreamer.liveInfo = {};
+Livestreamer.defaultQuality = "high";
+Livestreamer.bin = "livestreamer";
+Livestreamer.args = [
+  // "--player-no-close",
+  // "--player", "vlc --qt-minimal-view --fullscreen",
+  // "-l", "debug",
+  "--ringbuffer-size", "100M",
+  "--hls-live-edge", "12",
+  "-np", "omxplayer -o hdmi",
+  "--no-version-check",
+  "--verbose-player"
+];
 
-Livestreamer.play = function(streamId, onStatusChange) {
+Livestreamer.play = function(streamId, onStatusChange, quality=null) {
   var stream = StreamList.findOne(streamId);
-  console.log("Livestreamer: will play", stream._id);
-
-  var livestreamerBin = 'livestreamer';
-  var args = [
-    // "--player-no-close",
-    "--ringbuffer-size", "100M",
-    "--hls-live-edge", "12",
-    // "--player", "vlc --qt-minimal-view --fullscreen",
-    "-np", "omxplayer -o hdmi",
-    "--no-version-check",
-    "--verbose-player",
-    // "-l", "debug",
-    "twitch.tv/" + stream.channel.name,
-    "high"
-  ];
+  var selectedQuality = quality ? quality : Livestreamer.defaultQuality;
+  console.log("Livestreamer: will play", stream._id, "on", selectedQuality, "quality");
 
   // kill the previous child, if any
   if (this.liveInfo.child) {
@@ -54,16 +52,23 @@ Livestreamer.play = function(streamId, onStatusChange) {
   };
 
   // spawn a new child and store reference
-  console.log("Livestreamer: spawning livestreamer");
-  var child = spawn(livestreamerBin, args);
+  var args = Livestreamer.args.concat([
+    "twitch.tv/" + stream.channel.name,
+    selectedQuality
+  ]);
+  console.log("Livestreamer: spawning livestreamer with args:", args.join(" "));
+  var child = spawn(Livestreamer.bin, args);
+
   child.stdout.on('data', onData);
   child.stderr.on('data', onData);
   child.on('close', Meteor.bindEnvironment(function(code) {
     console.log(`Livestreamer: child process exited with code ${code}`);
+    // TODO: don't need to stop the processes here
     ended();
   }));
   child.on('error', Meteor.bindEnvironment(function(err) {
     console.log(`Livestreamer: failed to start child process ${err}`);
+    // TODO: don't need to stop the processes here
     ended();
   }));
 
@@ -73,7 +78,8 @@ Livestreamer.play = function(streamId, onStatusChange) {
     onStatusChange: onStatusChange,
     started: true,     // started to play
     ended: false,      // didn't end yet
-    playerOpen: false  // player not open yet
+    playerOpen: false, // player not open yet
+    quality: selectedQuality
   };
   this.liveInfo = liveInfo;
   console.log("Livestreamer: spawned child [" + child.pid + "] for stream", liveInfo.stream._id);

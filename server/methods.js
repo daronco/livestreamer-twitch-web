@@ -1,5 +1,6 @@
 Meteor.methods({
   updateFollowedStreams: updateFollowedStreams,
   setOnAir: setOnAir,
-  streamOnAir: streamOnAir
+  streamOnAir: streamOnAir,
+  removeOnAir: removeOnAir
 });

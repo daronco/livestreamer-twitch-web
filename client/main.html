@@ -49,13 +49,55 @@
     <nav>
       <div class="nav-wrapper">
 
-      <div class="progress progress-on-air teal {{loadingClass}}">
-        {{#if loadingClass}}
-          <div class="indeterminate red"></div>
-        {{else}}
-          <div class="indeterminate teal"></div>
-        {{/if}}
-      </div>
+        <div class="on-air-options">
+          <a href="#!" class="btn-options waves-effect" data-activates="dropdown1">
+            <i class="medium material-icons">settings</i>
+          </a>
+          <ul id="dropdown1" class="dropdown-content">
+            <li class="{{#if isQualityOnAir 'best'}}active{{/if}}">
+              <a href="#!" class="stream-play" data-stream-quality="best">
+                Best
+                {{#if isQualityOnAir 'best'}}<span class="new badge">&#x2713;</span>{{/if}}
+              </a>
+            </li>
+            <li class="{{#if isQualityOnAir 'high'}}active{{/if}}">
+              <a href="#!" class="stream-play" data-stream-quality="high">
+                High
+                {{#if isQualityOnAir 'high'}}<span class="new badge">&#x2713;</span>{{/if}}
+              </a>
+            </li>
+            <li class="{{#if isQualityOnAir 'medium'}}active{{/if}}">
+              <a href="#!" class="stream-play" data-stream-quality="medium">
+                Medium
+                {{#if isQualityOnAir 'medium'}}<span class="new badge">&#x2713;</span>{{/if}}
+              </a>
+            </li>
+            <li class="{{#if isQualityOnAir 'low'}}active{{/if}}">
+              <a href="#!" class="stream-play" data-stream-quality="low">
+                Low
+                {{#if isQualityOnAir 'low'}}<span class="new badge">&#x2713;</span>{{/if}}
+              </a>
+            </li>
+            <li class="{{#if isQualityOnAir 'worst'}}active{{/if}}">
+              <a href="#!" class="stream-play" data-stream-quality="worst">
+                Worst
+                {{#if isQualityOnAir 'worst'}}<span class="new badge">&#x2713;</span>{{/if}}
+              </a>
+            </li>
+            <li class="divider"></li>
+            <li>
+              <a href="#!" class="stream-stop">Stop playback</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="progress progress-on-air teal {{loadingClass}}">
+          {{#if loadingClass}}
+            <div class="indeterminate red"></div>
+          {{else}}
+            <div class="indeterminate teal"></div>
+          {{/if}}
+        </div>
 
         <div class="stream-status truncate">
           Now playing: <span class="stream-name">{{streamOnAir.channel.name}}</span>
@@ -75,7 +117,7 @@
     <li class="stream {{selectedClass}} col s12 m6 l4">
 
       <div class="card">
-        <div class="card-image waves-effect waves-teal stream-select">
+        <div class="card-image waves-effect waves-teal stream-play">
           <img src="{{data.preview.large}}" />
           <span class="card-title">{{channel.name}}</span>
           <span class="card-title stream-viewers">{{data.viewers}}</span>

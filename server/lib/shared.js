@@ -1,5 +1,5 @@
 /**
- * Returns the streamId of the stream currently on air
+ * Returns the stream or streamId of the stream currently on air
  */
 streamOnAir = function(idOnly=false) {
   var one = OnAir.findOne();
@@ -11,13 +11,30 @@ streamOnAir = function(idOnly=false) {
 };
 
 /**
+ * Whether the stream with this ID and quality is playing
+ */
+isStreamOnAir = function(streamId, quality) {
+  var one = OnAir.findOne();
+  if (one && one.stream) {
+    return streamId == one.stream._id && one.quality == quality;
+  } else {
+    return false;
+  }
+};
+
+/**
  * Sets the stream on air
  */
-setOnAir = function(streamId) {
-  // prevent useless work if the stream is already playing
-  if (streamId == streamOnAir(true)) {
+setOnAir = function(streamId, quality) {
+  quality = quality ? quality : 'high';
+  console.log("Setting on air:", streamId, quality);
+
+  // prevent useless work if the stream is already playing with the same quality
+  if (isStreamOnAir(streamId, quality)) {
+    console.log("Already on air, won't change it");
     return;
   }
+  console.log("Not on air, playing it");
 
   // remove the current stream set as OnAir
   OnAir.remove({});
@@ -29,13 +46,22 @@ setOnAir = function(streamId) {
     if (stream) {
       OnAir.insert({
         stream: stream,
-        playerOpen: false
+        playerOpen: false,
+        quality: quality
       });
 
       // play it
-      Livestreamer.play(stream._id, onStatusChange);
+      Livestreamer.play(streamId, onStatusChange, quality);
     }
   }
+};
+
+/**
+ * Removes the stream on air, stops playback.
+ */
+removeOnAir = function() {
+  Livestreamer.stop();
+  OnAir.remove({});
 };
 
 // Fetches the streams the current user follows in Twitch and update
@@ -101,11 +127,12 @@ updateFollowedStreams = function() {
 
 onStatusChange = function(liveInfo) {
   var streamId = liveInfo.stream._id;
+  var quality = liveInfo.quality;
 
   if (liveInfo.ended) {
     // we only remove it from air if the stream that ended was the one that
     // is on air, otherwise it was an old stream that ended
-    if (streamOnAir(true) == streamId) {
+    if (isStreamOnAir(streamId, quality)) {
       OnAir.remove({});
     }
   } else {

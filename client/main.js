@@ -4,8 +4,8 @@ if (Meteor.isClient) {
   Meteor.subscribe('streams');
   Meteor.subscribe('onAir');
 
-  var userSelectedStream = function(streamId) {
-    Meteor.call('setOnAir', streamId);
+  var userSelectedStream = function(streamId, quality) {
+    Meteor.call('setOnAir', streamId, quality);
   };
 
   // When the logged user changes, fetch updated information
@@ -51,6 +51,34 @@ if (Meteor.isClient) {
       } else {
         return "loading";
       }
+    },
+    'isQualityOnAir': function(quality) {
+      return OnAir.findOne().quality == quality;
+    }
+  });
+
+  Template.onAir.onRendered(function() {
+    $('.btn-options').dropdown({
+      inDuration: 300,
+      outDuration: 225,
+      constrain_width: false, // Does not change width of dropdown to that of the activator
+      hover: false, // Activate on hover
+      gutter: 0, // Spacing from edge
+      belowOrigin: false, // Displays dropdown below the button
+      alignment: 'right' // Displays dropdown with edge aligned to the left of button
+    });
+  });
+
+  Template.onAir.events({
+    'click .stream-stop': function() {
+      Meteor.call('removeOnAir');
+    },
+    'click .stream-play': function(e) {
+      var quality = $(event.target).data('stream-quality');
+      var one = OnAir.findOne();
+      if (one && one.stream) {
+        userSelectedStream(one.stream._id, quality);
+      }
     }
   });
 
@@ -72,7 +100,7 @@ if (Meteor.isClient) {
   });
 
   Template.streams.events({
-    'click .stream-select': function() {
+    'click .stream-play': function() {
       userSelectedStream(this._id);
     }
   });

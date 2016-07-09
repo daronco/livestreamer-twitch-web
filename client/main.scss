@@ -48,7 +48,7 @@ body {
   left: 0;
   right: 0;
   z-index: $navbar-z-index;
-  opacity: 0.9;
+  opacity: 0.95;
 
   nav {
     background: #000; //darken($twitch-purple, 5);
@@ -79,6 +79,36 @@ body {
     top: 0;
     left: 0;
     right: 0;
+  }
+
+  .on-air-options {
+    .dropdown-content {
+      left: auto !important;
+      top: auto !important;
+      bottom: 60px;
+      right: 0px;
+
+      li {
+        span.badge.new:after {
+          content: '';
+        }
+      }
+    }
+
+    .btn-options {
+      float: right;
+      margin: 7px 10px;
+
+      &.active {
+        color: $materialize-teal;
+      }
+
+      i {
+        margin: 0;
+        line-height: 32px;
+        height: 32px;
+      }
+    }
   }
 }
 
