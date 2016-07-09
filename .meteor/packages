@@ -21,3 +21,7 @@ service-configuration
 daronco:accounts-twitch
 fourseven:scss
 poetic:materialize-scss
+meteorhacks:npm
+
+
+npm-container
