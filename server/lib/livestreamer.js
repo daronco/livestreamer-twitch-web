@@ -6,7 +6,8 @@ Livestreamer.liveInfo = {};
 Livestreamer.defaultQuality = "high";
 Livestreamer.bin = "livestreamer";
 Livestreamer.playerCmd = "omxplayer -o hdmi --live --timeout 60";
-// Livestreamer.playerCmd = "omxplayer -o hdmi --live --timeout 60 -g"; // debug
+// Livestreamer.playerCmd = "omxplayer -o hdmi --live --timeout 60 --audio_queue 10 --video_queue 10";
+// Livestreamer.playerCmd = "omxplayer -o hdmi --live --timeout 60 --audio_queue 10 --video_queue 10 -g"; // debug
 // Livestreamer.playerCmd = "vlc --qt-minimal-view --fullscreen";
 Livestreamer.args = [
   // "--player-no-close",
@@ -14,6 +15,7 @@ Livestreamer.args = [
   // "-l", "debug",
   "--ringbuffer-size", "300M",
   "--hls-live-edge", "12",
+  "--hls-segment-threads", "4",
   "-np", Livestreamer.playerCmd,
   "--no-version-check",
   "--verbose-player"
