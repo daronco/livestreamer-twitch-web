@@ -72,7 +72,7 @@ meteor/meteor --version
 You will have Meteor installed at `~/meteor`. That's what will be assumed from now on.
 
 
-## Installing the application
+## Installing and running the application
 
 Clone the application:
 
@@ -86,14 +86,14 @@ Before running it:
 
 * Create a domain name or at least set a fixed IP for your server
 * Setup the application on Twitch at: http://www.twitch.tv/kraken/oauth2/clients/new
-* Set the configurations for your application in `server/accounts.js`
+* Copy `settings.json` to `settings-production.json` and set on it your Twitch keys.
 
 Install some dependencies and run Meteor for the first time (we're assuming your IP is `192.168.0.104`):
 
 ```bash
 ../meteor/dev_bundle/bin/npm install -g meteorite
 ../meteor/dev_bundle/bin/mrt install
-../meteor/meteor run -p 192.168.0.104:3000 --verbose
+../meteor/meteor run -p 192.168.0.104:3000 --settings settings-production.json
 ```
 
 You'll now be able to access `192.168.0.104:3000` on any browser in your network, sign in
