@@ -16,5 +16,9 @@
 </template>
 
 <template name="navbar">
-  {{> loginButtons}}
+  {{#if currentUser}}
+    {{currentUser.profile.name}}
+  {{else}}
+    {{> twitchLoginButton}}
+  {{/if}}
 </template>

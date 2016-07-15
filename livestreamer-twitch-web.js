@@ -12,7 +12,6 @@ if (Meteor.isClient) {
     'click button': function () {
       // increment the counter when button is clicked
       Session.set('counter', Session.get('counter') + 1);
-        console.log("currentUser:", Meteor.user());
     }
   });
 }
@@ -22,3 +21,6 @@ if (Meteor.isServer) {
     // code to run on server at startup
   });
 }
+
+// Accounts.twitch.apiCall
+// https://github.com/boingy/accounts-twitch/blob/master/twitch_server.js#L43
