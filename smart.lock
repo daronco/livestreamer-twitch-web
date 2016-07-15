@@ -5,6 +5,10 @@
       "daronco:accounts-twitch": {
         "git": "https://github.com/daronco/meteor-accounts-twitch.git",
         "branch": "master"
+      },
+      "fourseven:scss": {
+        "git": "https://github.com/fourseven/meteor-scss.git",
+        "branch": "master"
       }
     },
     "packages": {
@@ -12,6 +16,11 @@
         "git": "https://github.com/daronco/meteor-accounts-twitch.git",
         "branch": "master",
         "commit": "f9d2139692901fc7d576ae75f62578c23dfff0d4"
+      },
+      "fourseven:scss": {
+        "git": "https://github.com/fourseven/meteor-scss.git",
+        "branch": "master",
+        "commit": "7189df6c37f9779a1795de68c2b8868216b52802"
       }
     }
   }

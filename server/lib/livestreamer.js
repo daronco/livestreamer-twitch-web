@@ -11,13 +11,14 @@ Livestreamer.play = function(streamId, onStatusChange) {
 
   var args = [
     // "--player-no-close",
-    // "--ringbuffer-size", "100M",
-    // "--hls-live-edge", "12",
-    "--player", "vlc --qt-minimal-view --fullscreen",
+    "--ringbuffer-size", "100M",
+    "--hls-live-edge", "12",
+    // "--player", "vlc --qt-minimal-view --fullscreen",
+    "-np", "omxplayer -o hdmi",
     "--no-version-check",
     // "-l", "debug",
     "twitch.tv/" + stream.channel.name,
-    "low"
+    "high"
   ];
 
   // kill the previous child, if any

@@ -2,6 +2,9 @@
   "packages": {
     "daronco:accounts-twitch": {
       "git": "https://github.com/daronco/meteor-accounts-twitch.git"
+    },
+    "fourseven:scss": {
+      "git": "https://github.com/fourseven/meteor-scss.git"
     }
   }
 }

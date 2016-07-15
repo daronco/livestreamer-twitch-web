@@ -8,14 +8,6 @@ if (Meteor.isClient) {
     Meteor.call('setOnAir', streamId);
   };
 
-  var streamOnAir = function(idOnly=false) {
-    var stream = OnAir.findOne() ? OnAir.findOne().stream : null;
-    if (stream && idOnly) {
-      stream = stream._id;
-    }
-    return stream;
-  };
-
   // When the logged user changes, fetch updated information
   // from Twitch
   Tracker.autorun(function(c) {
@@ -30,9 +22,7 @@ if (Meteor.isClient) {
   });
 
   Template.navbar.helpers({
-    'hasStreamOnAir': function() {
-      return !!(OnAir.findOne());
-    }
+    'hasStreamOnAir': hasStreamOnAir
   });
 
   Template.navbar.events({
