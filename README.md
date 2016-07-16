@@ -4,6 +4,8 @@ A web application to select Twitch.tv streams via web and play them using
 [Livestreamer](http://docs.livestreamer.io/). Install it in a Raspberry Pi, plug it on your TV and
 use your mobile browser to select streams to play.
 
+![Screenshot: Mobile / Desktop](/public/img/livestreamer-twitch-web-screenshot.png?raw=true "Mobile / Desktop")
+
 ## Why
 
 I used to watch streams on a Chromecast but got tired of not-so-good quality and the random issues
