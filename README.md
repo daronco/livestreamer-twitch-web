@@ -1,38 +1,44 @@
 # Livestreamer Twitch Web
 
 A web application to select Twitch.tv streams via web and play them using
-[Livestreamer](http://docs.livestreamer.io/). Install it in a Raspberry Pi, plug it in your TV and
+[Livestreamer](http://docs.livestreamer.io/). Install it in a Raspberry Pi, plug it on your TV and
 use your mobile browser to select streams to play.
 
 ## Why
 
 I used to watch streams on a Chromecast but got tired of not-so-good quality and the random issues
 that used to make it useless every couple of months. However, the fact that you can use a mobile
-phone to select streams to play on it was always my favorite feature. So I made something to mimic it.
+phone to select streams to play on it was always my favorite feature. So I create something to try
+to mimic it.
 
 This is a [meteor](https://www.meteor.com/) application that you install in a machine (I use a
-[Raspberry Pi](https://www.raspberrypi.org/) 3) plugged to your television/monitor and that you can access via a web browser
-to select streams to play. Once the stream is selected, the server launches a Livestreamer process
-in the server to play that stream in a player available in the server (for Pi, it uses `omxplayer`).
+[Raspberry Pi](https://www.raspberrypi.org/) 3) plugged to your television/monitor and that you
+can access via a web browser to select streams to play. Once the stream is selected, the server
+launches a Livestreamer process to play that stream in a player available in the server (for Pi
+it uses [omxplayer](http://elinux.org/Omxplayer), but can be anything else that works well with
+Livestreamer).
 
-I've made this mostly for personal use and also to learn some of the technologies used to
-develop it. The application itself is still very rough and I implement things as I need them.
+I've made this mostly for personal use and also to try out some of the technologies used to
+develop it. The application itself is still rough and I implement things as I need them.
 Nevertheless, it would be great to have other people using it and possibly contributing to it
-as well. Create an issue, a pull request, or just ping me if you having anything to ask or
+as well. Create an issue, a pull request, or just ping me if you have anything to ask or
 contribute!
 
 
 # Server
 
-Get a Raspberry Pi and install [Raspbian Jessi](https://www.raspberrypi.org/downloads/raspbian/) on
-it. I tried a Raspberry Pi 2 and it ran ok, but not that well. I'm currently using a Raspberry Pi 3
+You can use any other operating system you want, as long as you can install Meteor and Livestreamer on it.
+
+Right now it's used on a Raspberry Pi with install
+[Raspbian Jessi](https://www.raspberrypi.org/downloads/raspbian/).
+I tried a Raspberry Pi 2 and it ran ok, but not that well. I'm currently using a Raspberry Pi 3
 and it runs pretty well. Meteor still takes some time to start/reload, but all the rest is pretty
 smooth.
 
-You could use any other operating system you want, as long as you can install Meteor and
-Livestreamer on it.
-
 # Running on a Raspberry Pi
+
+_**Note: work in progress, these instructions are not very complete yet**_
+
 
 Use the OS [Raspbian Jessi](https://www.raspberrypi.org/downloads/raspbian/).
 
